@@ -1,0 +1,79 @@
+---
+title: "DNS setup"
+description: "Add your custom domain to Vercel and configure the required DNS records."
+---
+
+## Required DNS records
+
+You will need to create two DNS records at your registrar:
+
+| Type | Name | Value |
+|------|------|-------|
+| TXT | `@` or your subdomain | Verification value provided by Vercel |
+| CNAME | Your subdomain (e.g., `google`) | `cname.vercel-dns.com` |
+
+<Note>
+  If you are adding a root domain (e.g., `yourdomain.com`), use `@` as the record name for the TXT verification entry. If you are adding a subdomain (e.g., `google.yourdomain.com`), use the subdomain label — `google` — as the name for both records. Some registrars require you to enter the full subdomain; others only the label before the root domain. Check your registrar's documentation if you are unsure.
+</Note>
+
+## Configure your domain
+
+<Steps>
+  <Step title="Add the domain in Vercel">
+    Open your project in the [Vercel dashboard](https://vercel.com/dashboard). Go to **Settings → Domains**. Enter your domain or subdomain (e.g., `google.yourdomain.com`) in the input field and click **Add**.
+
+    Vercel will display the DNS records you need to create.
+  </Step>
+
+  <Step title="Copy the TXT verification value">
+    On the Domains page, Vercel shows a TXT record with a unique verification value. Copy this value exactly — it is a long string that proves domain ownership. Do not close this page; you will need the CNAME value from here as well.
+  </Step>
+
+  <Step title="Add the TXT record at your registrar">
+    Log in to your domain registrar's DNS management panel. Create a new TXT record:
+
+    - **Type**: `TXT`
+    - **Name**: `@` for a root domain, or your subdomain label (e.g., `google`) for a subdomain
+    - **Value**: The verification string copied from Vercel
+
+    Save the record.
+  </Step>
+
+  <Step title="Add the CNAME record">
+    In the same DNS panel, create a CNAME record:
+
+    - **Type**: `CNAME`
+    - **Name**: Your subdomain label (e.g., `google`)
+    - **Value**: `cname.vercel-dns.com`
+
+    Save the record.
+
+    ```
+    google.yourdomain.com  →  CNAME  →  cname.vercel-dns.com
+    ```
+  </Step>
+
+  <Step title="Wait for DNS propagation">
+    DNS changes are not instant. Changes can take anywhere from a few minutes to 48 hours to propagate globally, depending on your registrar and DNS TTL settings.
+
+    <Warning>
+      Do not assume your domain is misconfigured if it does not resolve immediately. Wait at least 30 minutes before troubleshooting. Full propagation can take up to 24–48 hours in rare cases.
+    </Warning>
+
+    You can check propagation progress at a tool such as [dnschecker.org](https://dnschecker.org) by searching for your domain and selecting the TXT or CNAME record type.
+  </Step>
+
+  <Step title="Verify the domain is active in Vercel">
+    Return to **Settings → Domains** in your Vercel project. Once Vercel detects the correct DNS records, the domain status changes from **Invalid Configuration** to a green **Valid Configuration** indicator.
+
+    <Info>
+      Vercel automatically provisions a TLS certificate for your custom domain once verification succeeds. Your proxy will be accessible over HTTPS without any additional configuration on your part.
+    </Info>
+
+    Your proxy is now reachable at your custom domain. Requests to `google.yourdomain.com` are routed through Vercel to the target URL configured in `api/proxy.js`.
+  </Step>
+</Steps>
+
+## Next step
+
+If your domain is verified but the proxy is still not reachable, see [DNS issues](/troubleshooting/dns-issues) for common troubleshooting steps.

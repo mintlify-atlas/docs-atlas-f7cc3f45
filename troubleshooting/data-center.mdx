@@ -1,0 +1,66 @@
+---
+title: "Data center region"
+description: "Change your Vercel deployment region to control the egress IP used by your proxy."
+---
+
+## Overview
+
+When your proxy makes an outbound request to the target website, that request originates from the IP address of the Vercel data center where your serverless functions are deployed. The region you select affects:
+
+- **Egress IP**: The IP address seen by the target website. Some websites apply IP-based restrictions or rate limits by geography.
+- **Latency**: Requests travel faster when the Vercel region is geographically close to the target website's servers.
+- **Regional availability**: Some Vercel regions may be less affected by network-level filtering or DNS pollution in certain areas.
+
+If your proxy is slow, blocked by the target website, or affected by regional network issues, changing the region is a straightforward configuration change.
+
+## Available regions
+
+Vercel offers serverless function regions including:
+
+| Region code | Location |
+|-------------|----------|
+| `iad1` | Washington, D.C., USA |
+| `sfo1` | San Francisco, USA |
+| `fra1` | Frankfurt, Germany |
+| `sin1` | Singapore |
+| `hnd1` | Tokyo, Japan |
+| `gru1` | São Paulo, Brazil |
+| `icn1` | Seoul, South Korea |
+
+The full list is available in Vercel's documentation and may expand over time.
+
+<Tip>
+  Pick a region that is geographically close to the target website's servers, not close to your own location. The proxy runs in Vercel's infrastructure — minimizing the distance between Vercel and the target reduces round-trip time for each proxied request.
+</Tip>
+
+## How to change the region
+
+<Steps>
+  <Step title="Open your project in the Vercel dashboard">
+    Go to [vercel.com/dashboard](https://vercel.com/dashboard) and select your proxy project.
+  </Step>
+
+  <Step title="Go to project settings">
+    Click the **Settings** tab at the top of the project page.
+  </Step>
+
+  <Step title="Find the Functions section">
+    In the left sidebar, select **Functions**. This section controls the configuration for your serverless functions, including the deployment region.
+  </Step>
+
+  <Step title="Select a new region">
+    Under the **Function Region** or **Regions** setting, select the region you want to deploy to from the dropdown menu. Save your changes.
+
+    ```text
+    Example: Washington, D.C. (iad1)
+    ```
+  </Step>
+
+  <Step title="Redeploy your project">
+    Trigger a new deployment to apply the region change. You can do this by pushing a new commit, or by going to the **Deployments** tab and clicking **Redeploy** on the latest deployment.
+  </Step>
+</Steps>
+
+<Note>
+  Changing the region does not update an existing deployment in place. Vercel redeploys your serverless functions to the new region when you trigger the next deployment. Until then, the previous deployment continues running from its original region.
+</Note>

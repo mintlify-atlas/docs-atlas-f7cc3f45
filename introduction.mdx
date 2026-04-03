@@ -1,0 +1,97 @@
+---
+title: "Introduction"
+description: "A Next.js template for deploying a reverse website proxy on Vercel in minutes."
+---
+
+## What is Vercel Website Proxy?
+
+Vercel Website Proxy is a minimal Next.js template that lets you deploy a reverse proxy for any website using Vercel's serverless infrastructure. Once deployed, all incoming requests are forwarded to a target URL of your choice, and responses are passed back transparently to the visitor.
+
+The project is built around a single serverless function (`api/proxy.js`) powered by [`http-proxy-middleware`](https://github.com/chimurai/http-proxy-middleware), with Vercel's rewrite rules routing every request through it.
+
+## How it works
+
+Every request to your Vercel deployment is captured by a catch-all rewrite rule in `vercel.json`:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/proxy"
+    }
+  ]
+}
+```
+
+The rewrite forwards the request to `api/proxy.js`, which uses `http-proxy-middleware` to proxy it to the configured target URL with `changeOrigin` enabled. Optional `pathRewrite` rules let you strip or transform path prefixes before the request reaches the upstream server.
+
+```
+Visitor → Vercel edge → api/proxy.js → Target website → api/proxy.js → Visitor
+```
+
+<Note>
+  This project is intended for technical learning purposes only. The authors do
+  not use it for commercial gain. Ensure your use complies with the terms of
+  service of any website you proxy.
+</Note>
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card
+    title="One-click deploy"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Fork the repo, import it into Vercel, and your proxy is live — no build configuration required.
+  </Card>
+  <Card
+    title="Configurable target URL"
+    icon="sliders"
+    href="/configuration/proxy-target"
+  >
+    Set your upstream target by editing a single line in `api/proxy.js`. Conditional routing to multiple targets is supported via commented-out examples.
+  </Card>
+  <Card
+    title="Path rewriting"
+    icon="arrows-left-right"
+    href="/configuration/path-rewriting"
+  >
+    Strip or rewrite path prefixes before requests reach the upstream server using `http-proxy-middleware`'s built-in `pathRewrite` option.
+  </Card>
+  <Card
+    title="Custom domain support"
+    icon="globe"
+    href="/domain/registering"
+  >
+    Attach your own domain to the Vercel deployment and configure a CNAME record to serve the proxy from a branded URL.
+  </Card>
+  <Card
+    title="Vercel region selection"
+    icon="map-pin"
+    href="/troubleshooting/data-center"
+  >
+    Choose which Vercel data center your serverless function runs in, controlling the egress IP address used when the proxy fetches upstream content.
+  </Card>
+  <Card
+    title="Next.js foundation"
+    icon="box"
+    href="/configuration/vercel-settings"
+  >
+    Built on Next.js 13, giving you a familiar project structure if you need to extend the proxy with additional pages or API routes.
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before you deploy, make sure you have:
+
+- A **GitHub account** — you will fork the repository to your own account
+- A **Vercel account** — free tier is sufficient; sign up at [vercel.com](https://vercel.com)
+- A **target URL** — the website you want to proxy
+- A **custom domain** (optional, but recommended) — Vercel provides a default `.vercel.app` domain, though you may want your own for reliability and branding
+
+## Next steps
+
+Follow the [quickstart](/quickstart) to fork the repository and have your proxy deployed in under five minutes.

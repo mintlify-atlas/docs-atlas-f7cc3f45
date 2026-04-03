@@ -1,0 +1,62 @@
+---
+title: "Security warnings"
+description: "Resolve the Chrome 'This site is not secure' warning when using your proxy."
+---
+
+## Overview
+
+When accessing your proxy through Chrome, you may see a warning that reads **"This site is not secure"**. This occurs because Chrome's security features can flag certain proxy behaviors — such as mixed content or request patterns — as potentially unsafe.
+
+The proxy itself is not compromised. This warning is a result of how Chrome's protection layer evaluates the proxied connection, and it can be resolved by disabling that specific protection for the site.
+
+## Resolution
+
+<Steps>
+  <Step title="Open Chrome Settings">
+    In Chrome, click the three-dot menu in the top-right corner and select **Settings**. Alternatively, navigate to `chrome://settings` directly in the address bar.
+  </Step>
+
+  <Step title="Navigate to Security settings">
+    In the left sidebar, click **Privacy and security**, then select **Security**.
+  </Step>
+
+  <Step title="Locate the Safe Browsing or protection setting">
+    Scroll down to find the relevant security protection that is triggering the warning. This is typically listed under **Safe Browsing** or a similar option depending on your Chrome version.
+  </Step>
+
+  <Step title="Disable the setting for your proxy site">
+    Click **Add** next to the exclusions list (sometimes labelled **Always use secure connections** exceptions or similar). Enter the full hostname of your proxy — for example, `google.yourdomain.com` — and save.
+
+    This disables that specific security check for your proxy domain only. All other sites remain protected.
+  </Step>
+
+  <Step title="Reload the proxy">
+    Close the Settings tab and reload your proxy URL. The warning should no longer appear.
+  </Step>
+</Steps>
+
+<Warning>
+  Disabling a security protection in Chrome reduces your browser's ability to warn you about potential risks on that site. Only do this for domains you own and trust. If you did not deploy the proxy yourself, do not bypass security warnings.
+</Warning>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Why does this warning appear?">
+    Chrome includes several layers of protection that inspect connections and content loaded by a page. When a proxy forwards requests to a third-party origin, Chrome may detect patterns that resemble mixed content (HTTP resources loaded on an HTTPS page) or behaviors associated with certain network interception techniques. This triggers a security warning even though the proxy is operating as intended.
+
+    The warning is not an indication that the site has been hacked or that your data is at risk — it is Chrome's heuristic flagging a proxy-specific behavior.
+  </Accordion>
+
+  <Accordion title="Is it safe to proceed?">
+    If you deployed the proxy yourself using this template and you trust the target website, it is safe to disable the warning for your proxy domain. The warning is a false positive caused by the proxy pattern, not a sign of a genuine threat.
+
+    If someone else gave you a proxy URL and you did not set it up yourself, treat the warning with caution. Do not enter credentials or sensitive information on a proxy site you do not control.
+  </Accordion>
+
+  <Accordion title="Are there other browsers that handle this better?">
+    Firefox and Safari also implement security warnings, but the specific triggers and thresholds differ from Chrome. Some users find that Firefox's default settings produce fewer false positives for self-hosted proxies. However, browser behavior varies across versions and operating systems.
+
+    If you need a consistent experience across users, the most reliable fix is to configure your proxy so that Chrome does not flag it in the first place — primarily by ensuring all assets and requests use HTTPS and avoiding mixed-content patterns in the proxied responses.
+  </Accordion>
+</AccordionGroup>

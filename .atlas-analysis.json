@@ -1,0 +1,43 @@
+{
+  "projectType": "infrastructure",
+  "projectName": "Vercel Website Proxy",
+  "projectDescription": "A Next.js template for deploying your own website proxy on Vercel, enabling you to mirror any target website through a custom domain.",
+  "theme": "palm",
+  "primaryColor": "#4285F4",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": ["introduction", "quickstart"]
+      },
+      {
+        "group": "Configuration",
+        "pages": ["configuration/proxy-target", "configuration/path-rewriting", "configuration/vercel-settings"]
+      },
+      {
+        "group": "Custom Domain",
+        "pages": ["domain/registering", "domain/dns-setup"]
+      },
+      {
+        "group": "Troubleshooting",
+        "pages": ["troubleshooting/security-warnings", "troubleshooting/dns-issues", "troubleshooting/data-center"]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "One-click Vercel deployment via GitHub fork",
+    "Configurable proxy target (any website URL)",
+    "Path rewriting support via http-proxy-middleware",
+    "Custom domain with CNAME configuration",
+    "Vercel data center region selection",
+    "Built on Next.js 13 serverless functions"
+  ],
+  "publicApiSurface": [
+    "api/proxy.js — Vercel serverless function that proxies all requests to the target URL",
+    "vercel.json rewrites — routes all incoming paths to /api/proxy",
+    "createProxyMiddleware({ target, changeOrigin, pathRewrite }) — core proxy configuration",
+    "target variable — the website URL to proxy (default: https://www.google.com/)"
+  ]
+}

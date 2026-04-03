@@ -1,0 +1,107 @@
+---
+title: "Path rewriting"
+description: "Transform incoming request paths before they are forwarded to the target."
+---
+
+Path rewriting lets you modify the URL path of an incoming request before it reaches the backend. This is useful when the path structure expected by your target differs from the one exposed by the proxy.
+
+The `pathRewrite` option in `createProxyMiddleware` accepts an object where each key is a regular expression pattern and the value is the replacement string.
+
+```js api/proxy.js
+createProxyMiddleware({
+  target: "https://api.example.com/",
+  changeOrigin: true,
+  pathRewrite: {
+    "^/backend/": "/", // rewrite /backend/user/login → /user/login
+  },
+})(req, res);
+```
+
+<Note>
+  An empty `pathRewrite: {}` object means no rewriting is applied. The request path is forwarded to the target unchanged (pass-through).
+</Note>
+
+## Rewrite scenarios
+
+<Tabs>
+  <Tab title="Strip a prefix">
+    Remove a leading path segment so the target receives a clean path.
+
+    ```js
+    pathRewrite: {
+      "^/backend/": "/",
+    }
+    ```
+
+    | Incoming path | Forwarded path |
+    |---|---|
+    | `/backend/user/login` | `/user/login` |
+    | `/backend/products` | `/products` |
+    | `/backend/` | `/` |
+
+    This matches the example in the commented-out source code. It is the most common use case when the proxy adds a namespace prefix that the backend does not understand.
+  </Tab>
+  <Tab title="Add a prefix">
+    Prepend a path segment to every request, useful when the backend expects a versioned API root.
+
+    ```js
+    pathRewrite: {
+      "^/": "/v1/",
+    }
+    ```
+
+    | Incoming path | Forwarded path |
+    |---|---|
+    | `/users` | `/v1/users` |
+    | `/orders/42` | `/v1/orders/42` |
+    | `/` | `/v1/` |
+  </Tab>
+  <Tab title="Replace a segment">
+    Swap one path segment for another without affecting the rest of the path.
+
+    ```js
+    pathRewrite: {
+      "^/legacy/": "/current/",
+    }
+    ```
+
+    | Incoming path | Forwarded path |
+    |---|---|
+    | `/legacy/reports` | `/current/reports` |
+    | `/legacy/export/csv` | `/current/export/csv` |
+
+    You can also target a segment anywhere in the path using a non-anchored pattern:
+
+    ```js
+    pathRewrite: {
+      "/internal/": "/external/",
+    }
+    ```
+  </Tab>
+  <Tab title="Pass-through (no rewrite)">
+    Leave `pathRewrite` as an empty object to forward the path exactly as received.
+
+    ```js
+    pathRewrite: {}
+    ```
+
+    This is the default state in the repository. Use it when the proxy and the target share the same path structure.
+  </Tab>
+</Tabs>
+
+## How patterns are matched
+
+Each key in `pathRewrite` is treated as a JavaScript regular expression. Patterns are tested against the full incoming path in the order they appear in the object.
+
+- Use `^` to anchor the match to the start of the path.
+- Use `$` to anchor the match to the end.
+- The first matching pattern is applied; subsequent patterns are skipped.
+
+```js
+pathRewrite: {
+  "^/api/v1/": "/",  // matches /api/v1/... first
+  "^/api/":    "/",  // this would also match /api/v1/... but is never reached for those paths
+}
+```
+
+Order your patterns from most specific to least specific to avoid unintended matches.

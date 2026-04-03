@@ -1,80 +1,89 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Fork the repository, configure your target URL, and deploy your proxy to Vercel."
 ---
 
-## Get started in three steps
+<Warning>
+  This project is for technical learning only. Before proxying any website,
+  confirm that doing so is permitted by that site's terms of service. The
+  authors accept no responsibility for misuse.
+</Warning>
 
-Get your documentation site running locally and make your first customization.
+## Deploy your proxy
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Fork the repository">
+    Go to [github.com/gaowanlu/google](https://github.com/gaowanlu/google) and click **Fork** in the top-right corner. Accept the default settings and confirm the fork. This creates a copy of the repository under your own GitHub account that Vercel will deploy from.
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Set your target URL">
+    In your forked repository, open `api/proxy.js` and replace the value of `target` with the URL of the website you want to proxy.
 
-### Step 2: Deploy your changes
+    ```js
+    const { createProxyMiddleware } = require("http-proxy-middleware");
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    module.exports = (req, res) => {
+      let target = "https://www.google.com/"; // your website url
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+      //   if (
+      //     req.url.startsWith("/api") ||
+      //     req.url.startsWith("/auth") ||
+      //     req.url.startsWith("/banner") ||
+      //     req.url.startsWith("/CollegeTask")
+      //   ) {
+      //     target = "http://106.15.2.32:6969";
+      //   }
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+      createProxyMiddleware({
+        target,
+        changeOrigin: true,
+        pathRewrite: {
+          // rewrite request path `/backend`
+          //  /backend/user/login => http://google.com/user/login
+          //   "^/backend/": "/",
+        },
+      })(req, res);
+    };
+    ```
 
-### Step 3: Go live
+    The commented-out `if` block shows how to route different URL prefixes to different upstream targets. Uncomment and adapt it if you need conditional routing.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    Commit the change directly to your fork's default branch before moving on.
+  </Step>
+
+  <Step title="Create a Vercel account and connect GitHub">
+    Go to [vercel.com](https://vercel.com) and sign up for a free account. During onboarding, or later in **Settings → Integrations**, connect your GitHub account so Vercel can read your repositories.
+  </Step>
+
+  <Step title="Import your forked repository">
+    From the Vercel dashboard:
+
+    1. Click **Overview** in the top navigation.
+    2. Click **Add New... → Project**.
+    3. Click **Continue with GitHub** when prompted.
+    4. Find your forked repository (e.g., `your-username/google`) and click **Import**.
+    5. Leave the build settings at their defaults — no changes are needed.
+    6. Click **Deploy**.
+  </Step>
+
+  <Step title="Wait for the deployment to complete">
+    Vercel will clone your repository, install dependencies, and deploy the serverless function. This typically takes 30–60 seconds. You will see a success screen with a preview URL when it finishes.
+  </Step>
+
+  <Step title="Access your proxy">
+    Click the URL shown on the deployment success screen (it will look like `your-project.vercel.app`). Your proxy is now live — requests to that domain are forwarded to the target URL you configured in step 2.
+
+    <Tip>
+      For a more reliable and branded experience, register a custom domain and add it to your Vercel project under **Settings → Domains**. Configure a CNAME record with your domain registrar pointing to `cname.vercel-dns.com`, then add the corresponding TXT verification record provided by Vercel. Once DNS propagates, your proxy will be accessible at your own domain.
+    </Tip>
+  </Step>
+</Steps>
+
+## Change the Vercel region
+
+The region your serverless function runs in determines the egress IP address Vercel uses when fetching upstream content. To change it, go to your project in the Vercel dashboard, open **Settings → Functions**, and select a different region from the dropdown. Redeploy the project for the change to take effect.
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+- Review the `pathRewrite` option in `api/proxy.js` if you need to strip path prefixes before requests reach the upstream server.
+- Explore [http-proxy-middleware options](https://github.com/chimurai/http-proxy-middleware#options) for additional configuration such as custom headers, SSL verification, and timeout settings.

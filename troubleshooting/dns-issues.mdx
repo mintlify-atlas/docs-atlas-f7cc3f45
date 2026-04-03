@@ -1,0 +1,58 @@
+---
+title: "DNS issues"
+description: "Diagnose and fix DNS problems that make your Vercel proxy unreachable in some regions."
+---
+
+## Overview
+
+If your proxy is deployed but unreachable in certain regions — particularly mainland China — the most common cause is DNS pollution. This is distinct from normal DNS propagation delays and requires a different fix.
+
+<Info>
+  **DNS propagation** is the delay after you create or change a DNS record while that change spreads across global DNS servers. It takes minutes to hours and resolves on its own.
+
+  **DNS pollution** (also called DNS spoofing or DNS hijacking) is when network infrastructure — typically an ISP or a government-level firewall — intercepts a DNS query for a known domain and intentionally returns a wrong IP address. The record at your registrar is correct, but the polluted response from the network overrides it before reaching the client.
+
+  If your proxy works in some regions but not others, DNS pollution is the likely cause, not propagation delay.
+</Info>
+
+## Why `.vercel.app` domains are affected
+
+Vercel's default domains (e.g., `your-project.vercel.app`) are widely known infrastructure addresses. In regions that apply DNS pollution, queries for `*.vercel.app` may be intercepted and resolved to incorrect or non-routable addresses, making your proxy completely unreachable from those networks — even though the deployment itself is healthy.
+
+## Solutions
+
+### 1. Register and use a custom domain (recommended)
+
+The most reliable fix is to attach a custom domain that you control. A custom domain resolves independently of Vercel's infrastructure, and DNS pollution typically targets well-known hosting provider domains rather than arbitrary custom domains.
+
+See the domain setup guides below to get started.
+
+<CardGroup cols={2}>
+  <Card title="Registering a domain" icon="globe" href="/domain/registering">
+    Choose a registrar and purchase a domain to use with your proxy deployment.
+  </Card>
+  <Card title="DNS setup" icon="server" href="/domain/dns-setup">
+    Add your custom domain to Vercel and configure the required DNS records.
+  </Card>
+</CardGroup>
+
+### 2. Use a different DNS resolver on the client
+
+If you cannot use a custom domain right away, clients can work around DNS pollution by switching to a public DNS resolver that is less likely to return polluted responses:
+
+| Resolver | Primary | Secondary |
+|----------|---------|-----------|
+| Google Public DNS | `8.8.8.8` | `8.8.4.4` |
+| Cloudflare | `1.1.1.1` | `1.0.0.1` |
+
+On most operating systems, the DNS resolver is configured in network settings. The exact steps vary by OS and device.
+
+<Note>
+  Changing the DNS resolver on the client is a workaround, not a fix. It depends on each individual user making the change on their own device, and it may not work if DNS traffic itself is intercepted at the network level rather than the resolver level.
+</Note>
+
+### 3. Change the Vercel data center region
+
+In some cases, traffic routing through a different Vercel region may be less affected by regional network filtering. Changing the deployment region also changes the egress IP addresses associated with your proxy, which can help if the issue is IP-based rather than purely DNS-based.
+
+See [Data center region](/troubleshooting/data-center) for instructions on how to change your Vercel region.

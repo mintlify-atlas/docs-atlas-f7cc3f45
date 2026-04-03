@@ -1,0 +1,106 @@
+---
+title: "Proxy target"
+description: "Configure which backend URL the proxy forwards requests to."
+---
+
+The proxy target is the URL that all incoming requests are forwarded to. It is defined in `api/proxy.js` as the `target` variable passed to `createProxyMiddleware`.
+
+## Default configuration
+
+Out of the box, the proxy forwards every request to `https://www.google.com/`:
+
+```js api/proxy.js
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+module.exports = (req, res) => {
+  let target = "https://www.google.com/"; // your website url
+
+  createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: {},
+  })(req, res);
+};
+```
+
+## How to change the target URL
+
+<Steps>
+  <Step title="Open api/proxy.js">
+    Locate the `target` variable near the top of the exported handler function.
+  </Step>
+  <Step title="Replace the URL">
+    Change the value of `target` to the URL of your backend:
+
+    ```js
+    let target = "https://your-backend.example.com/";
+    ```
+  </Step>
+  <Step title="Commit and redeploy">
+    Save the file, commit the change, and push to trigger a new Vercel deployment.
+  </Step>
+</Steps>
+
+<Warning>
+  Changes to `api/proxy.js` take effect only after redeployment. Editing the file locally has no effect on the live proxy until the new deployment is published on Vercel.
+</Warning>
+
+## The `changeOrigin` option
+
+The `changeOrigin: true` option rewrites the `Host` HTTP header on the outgoing request to match the target host. Without it, the `Host` header would contain your Vercel deployment domain (e.g. `my-proxy.vercel.app`) instead of the target's domain, which many servers reject or handle incorrectly.
+
+```js
+createProxyMiddleware({
+  target: "https://api.example.com/",
+  changeOrigin: true, // sets Host: api.example.com on the forwarded request
+});
+```
+
+You should keep `changeOrigin: true` unless your target server specifically requires the original `Host` header.
+
+## Single-target vs multi-target configurations
+
+<CodeGroup>
+
+```js Single target
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+module.exports = (req, res) => {
+  const target = "https://api.example.com/";
+
+  createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: {},
+  })(req, res);
+};
+```
+
+```js Multiple targets
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+module.exports = (req, res) => {
+  let target = "https://www.example.com/"; // default frontend
+
+  if (
+    req.url.startsWith("/api") ||
+    req.url.startsWith("/auth")
+  ) {
+    target = "https://api.example.com/"; // backend API server
+  }
+
+  if (req.url.startsWith("/assets")) {
+    target = "https://cdn.example.com/"; // static asset CDN
+  }
+
+  createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: {},
+  })(req, res);
+};
+```
+
+</CodeGroup>
+
+In the multi-target example, the `target` is selected based on the incoming request path before the middleware is created. You can add as many `if` branches as your routing requirements demand.

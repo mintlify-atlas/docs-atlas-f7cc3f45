@@ -1,97 +1,55 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Vercel Website Proxy"
+description: "Deploy your own website proxy on Vercel in minutes. Mirror any website through a custom domain using Next.js serverless functions."
 ---
 
-## Setting up
+Deploy a fully functional website proxy on Vercel using this open-source template. Fork the repository, configure your target URL, connect a custom domain, and you're live — no server management required.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Fork, deploy, and have your proxy running in under 10 minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Configure proxy target" icon="sliders" href="/configuration/proxy-target">
+    Change the target website URL and customize proxy behavior.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Custom domain" icon="globe" href="/domain/registering">
+    Register and connect your own domain to your Vercel deployment.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting/security-warnings">
+    Fix common issues like security warnings and DNS problems.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## How it works
 
-Everything you need to create world-class documentation.
+Every request to your Vercel deployment is routed through a single serverless function (`api/proxy.js`) that forwards traffic to your configured target URL using `http-proxy-middleware`. The `vercel.json` rewrite rule ensures all paths are intercepted:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+```json vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/proxy"
+    }
+  ]
+}
+```
 
-## Need inspiration?
+<Steps>
+  <Step title="Fork the repository">
+    Fork [gaowanlu/google](https://github.com/gaowanlu/google) to your GitHub account.
+  </Step>
+  <Step title="Set your target URL">
+    Edit `api/proxy.js` and replace the `target` value with the website you want to proxy.
+  </Step>
+  <Step title="Deploy to Vercel">
+    Import your forked repository in the Vercel dashboard and deploy with one click.
+  </Step>
+  <Step title="Connect a custom domain">
+    Register a domain and configure CNAME records to point to your Vercel deployment.
+  </Step>
+</Steps>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Note>
+  This project is intended for technical learning purposes only. Ensure you comply with the terms of service of any website you proxy.
+</Note>

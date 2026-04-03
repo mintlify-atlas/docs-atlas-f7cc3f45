@@ -1,0 +1,53 @@
+---
+title: "Vercel settings"
+description: "Configure Vercel-specific behavior including rewrites and deployment regions."
+---
+
+The project uses two Vercel-specific mechanisms: a `vercel.json` rewrite rule that routes all traffic to the proxy handler, and a serverless function in `api/proxy.js` that performs the actual proxying.
+
+## vercel.json
+
+The `vercel.json` file at the project root controls how Vercel processes incoming requests before they reach your code.
+
+```json vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/proxy"
+    }
+  ]
+}
+```
+
+The single rewrite rule matches every path (`/(.*)`) and sends the request to `/api/proxy`, which maps to the `api/proxy.js` serverless function. This means every URL on your deployment—regardless of path—is handled by the proxy.
+
+<Info>
+  Do not modify the `vercel.json` rewrite rule unless you fully understand the consequences. Removing or changing the rule will break the proxy for all or part of your URL space. If you need to serve static files or other routes alongside the proxy, add those destinations before the catch-all rule.
+</Info>
+
+## Serverless function
+
+`api/proxy.js` is a [Vercel Serverless Function](https://vercel.com/docs/functions/serverless-functions). Vercel automatically detects any file inside the `api/` directory and deploys it as an HTTP handler. The file exports a standard Node.js request/response handler:
+
+```js api/proxy.js
+module.exports = (req, res) => {
+  // req: IncomingMessage, res: ServerResponse
+};
+```
+
+Each invocation of the function is independent and stateless. There is no persistent connection to the target—`http-proxy-middleware` opens a new connection for every request. Cold start latency on the first request after a period of inactivity is normal Vercel serverless behavior.
+
+<Note>
+  In this template, `http-proxy-middleware` is listed under `devDependencies` in `package.json`. Vercel installs both `dependencies` and `devDependencies` during build by default, so the package is available at runtime without any additional changes.
+</Note>
+
+## Region selection
+
+By default, Vercel deploys serverless functions to a region inferred from your account settings or the first deployment. The region determines the egress IP address that the target server sees.
+
+Region selection is configured through the Vercel dashboard under **Settings → Functions**. See [Data center region](/troubleshooting/data-center) for step-by-step instructions and a list of available region codes.
+
+<Tip>
+  If your target server restricts access by IP allowlist, deploy to the Vercel region geographically closest to that server. Choosing a region close to your target backend also reduces round-trip latency for every proxied request.
+</Tip>

@@ -1,0 +1,50 @@
+---
+title: "Registering a domain"
+description: "Choose a registrar and purchase a domain to use with your Vercel proxy deployment."
+---
+
+## Why a custom domain is recommended
+
+After you deploy to Vercel, your proxy is accessible at a `*.vercel.app` URL. In some regions — particularly mainland China — Vercel's default domains can be affected by DNS pollution, making the proxy unreliable or completely unreachable for your users. Attaching a custom domain avoids this problem because you control the DNS records, and the domain resolves independently of Vercel's own infrastructure.
+
+Even outside regions with DNS issues, a custom domain gives your proxy a stable, branded address that does not change across redeployments.
+
+## Choose a registrar
+
+Several popular registrars offer competitive pricing, especially for first-year registrations:
+
+| Registrar | Notes |
+|-----------|-------|
+| [Namecheap](https://www.namecheap.com) | Affordable pricing, straightforward DNS management panel |
+| [GoDaddy](https://www.godaddy.com) | Large selection of TLDs, widely recognized |
+| [Alibaba Cloud (Aliyun)](https://www.alibabacloud.com/domain) | Good option for users in mainland China; supports CN domains |
+
+Beginners can typically register a `.com`, `.net`, or `.xyz` domain for well under $10 for the first year. Renewal pricing is usually higher, so check the renewal cost before committing.
+
+<Tip>
+  You only need one domain to serve multiple proxied services. Use subdomains — for example, `google.yourdomain.com`, `maps.yourdomain.com` — to point different Vercel projects to the same root domain. Each subdomain gets its own CNAME and TXT record in your DNS panel.
+</Tip>
+
+## Register your domain
+
+<Steps>
+  <Step title="Choose a registrar">
+    Pick a registrar from the table above or use one you already have an account with. Create an account if you do not have one.
+  </Step>
+
+  <Step title="Search for a domain">
+    Use the registrar's search tool to find an available domain name. The examples in this documentation use the pattern `google.yourdomain.com`, where `yourdomain.com` is your registered domain and `google` is a subdomain you configure later.
+
+    Choose a short, memorable domain name. The exact name does not affect proxy functionality.
+  </Step>
+
+  <Step title="Complete purchase and verification">
+    Add the domain to your cart and complete checkout. After purchase, some registrars — particularly for `.cn` domains or users in mainland China — require real-name verification (实名认证) before the domain becomes active. Follow any verification prompts in your registrar's dashboard.
+
+    Once the domain is active, you are ready to configure DNS records for your Vercel deployment.
+  </Step>
+</Steps>
+
+## Next step
+
+With your domain registered, proceed to [DNS setup](/domain/dns-setup) to connect it to your Vercel project.
